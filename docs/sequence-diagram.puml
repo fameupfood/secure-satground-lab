@@ -1,0 +1,17 @@
+@startuml
+autonumber
+
+participant "sat_agentd" as Sat
+participant "groundstation-api" as API
+participant "telemetry.db" as DB
+participant "security-monitor" as Mon
+
+Sat -> API: POST /telemetry\nJSON + HMAC
+API -> API: verify HMAC
+API -> DB: insert telemetry row
+
+Mon -> DB: read telemetry
+Mon -> Mon: analyse for anomalies\n(battery, altitude, temperature)
+Mon -> Mon: print alert JSON
+
+@enduml

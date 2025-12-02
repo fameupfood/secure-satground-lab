@@ -1,0 +1,25 @@
+@startuml
+skinparam style strict
+
+actor Operator
+
+node "Satellite Node\n(QEMU/ARM Linux or Docker)" as Sat {
+  component "sat_agentd" as Agent
+}
+
+node "Ground Station\n(Docker Container)" as GS {
+  component "REST API\n(FastAPI)" as API
+  database "Telemetry DB\n(SQLite)" as DB
+}
+
+node "Security Monitor\n(Docker Container)" as Mon {
+  component "monitor.py" as MonC
+}
+
+Operator --> GS : Commands (HTTPS/TLS + HMAC)
+Agent --> API : Telemetry (HTTPS/TLS + HMAC)
+API --> DB : Store telemetry
+MonC --> DB : Read telemetry
+MonC --> Operator : Alerts
+
+@enduml

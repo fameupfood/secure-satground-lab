@@ -1,0 +1,35 @@
+services:
+  groundstation-api:
+    build: ./groundstation-api
+    container_name: groundstation-api
+    ports:
+      - "8000:8000"
+    environment:
+      - TELEMETRY_DB=/data/telemetry.db
+      - HMAC_SECRET=changeme
+    volumes:
+      - ./data:/data
+
+  satellite-node:
+    build: ./satellite-node
+    container_name: satellite-node
+    environment:
+      - GROUNDSTATION_URL=http://groundstation-api:8000
+      - SATELLITE_ID=SAT-001
+      - HMAC_SECRET=changeme
+      - ORBIT_PERIOD_S=5400
+      - ORBIT_INCLINATION_DEG=55
+      - GS_LAT=50.0
+      - GS_LON=7.5
+    depends_on:
+      - groundstation-api
+
+  security-monitor:
+    build: ./security-monitor
+    container_name: security-monitor
+    environment:
+      - TELEMETRY_DB=/data/telemetry.db
+    volumes:
+      - ./data:/data
+    depends_on:
+      - groundstation-api
